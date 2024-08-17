@@ -105,12 +105,14 @@ typedef void (*API_Launch_t)();
 
 API_LoadAndLaunch_t API_LoadAndLaunch = nullptr;
 API_Launch_t API_Launch = nullptr;
+API_Launch_t API_Stop = nullptr;
 
 void init_API()
 {
 	if (auto pluginHandle = GetModuleHandleA("CinematicCamera.dll")) {
 		API_LoadAndLaunch = (API_LoadAndLaunch_t)GetProcAddress(pluginHandle, "CinematicCamera_LoadAndLaunch");
 		API_Launch = (API_Launch_t)GetProcAddress(pluginHandle, "CinematicCamera_Launch");
+		API_Stop = (API_Launch_t)GetProcAddress(pluginHandle, "CinematicCamera_Stop");
 	}
 }
 
