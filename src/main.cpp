@@ -100,6 +100,51 @@ private:
 };
 #endif  // WITH_DRAWING
 
+typedef bool (*API_LoadAndLaunch_t)(const char* path);
+typedef void (*API_Launch_t)();
+
+API_LoadAndLaunch_t API_LoadAndLaunch = nullptr;
+API_Launch_t API_Launch = nullptr;
+
+void init_API()
+{
+	if (auto pluginHandle = GetModuleHandleA("CinematicCamera.dll")) {
+		API_LoadAndLaunch = (API_LoadAndLaunch_t)GetProcAddress(pluginHandle, "CinematicCamera_LoadAndLaunch");
+		API_Launch = (API_Launch_t)GetProcAddress(pluginHandle, "CinematicCamera_Launch");
+	}
+}
+
+class InputHandler : public RE::BSTEventSink<RE::InputEvent*>
+{
+public:
+	static InputHandler* GetSingleton()
+	{
+		static InputHandler singleton;
+		return std::addressof(singleton);
+	}
+
+	RE::BSEventNotifyControl ProcessEvent(RE::InputEvent* const* e, RE::BSTEventSource<RE::InputEvent*>*) override
+	{
+		if (!*e)
+			return RE::BSEventNotifyControl::kContinue;
+
+		if (auto buttonEvent = (*e)->AsButtonEvent(); buttonEvent && buttonEvent->HasIDCode() && buttonEvent->IsDown()) {
+			int key = buttonEvent->GetIDCode();
+			if (key == 71) {
+				API_LoadAndLaunch("DemoPath");
+			}
+		}
+		return RE::BSEventNotifyControl::kContinue;
+	}
+
+	void enable()
+	{
+		if (auto input = RE::BSInputDeviceManager::GetSingleton()) {
+			input->AddEventSink(this);
+		}
+	}
+};
+
 static void SKSEMessageHandler(SKSE::MessagingInterface::Message* message)
 {
 #ifdef WITH_DRAWING
@@ -108,7 +153,8 @@ static void SKSEMessageHandler(SKSE::MessagingInterface::Message* message)
 
 	switch (message->type) {
 	case SKSE::MessagingInterface::kDataLoaded:
-		//
+		init_API();
+		InputHandler::GetSingleton()->enable();
 
 #ifdef WITH_DRAWING
 		DrawThingsHook::Hook();

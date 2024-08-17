@@ -1,5 +1,5 @@
-option(WITH_IMGUI "Add ImGui support" ON)
-option(WITH_DRAWING "Add Debug render support" ON)
+option(WITH_IMGUI "Add ImGui support" OFF)
+option(WITH_DRAWING "Add Debug render support" OFF)
 
 cmake_minimum_required(VERSION 3.21)
 
@@ -34,7 +34,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STR
 # ---- Project ----
 
 project(
-	TemplatePluginSSE
+	CinematicCameraExample
 	VERSION 1.0.0
 	LANGUAGES CXX
 )
